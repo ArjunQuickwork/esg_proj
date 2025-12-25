@@ -15,6 +15,9 @@ def insert_json_into_mongo(data):
     # Set the slug
     collection.update_one(update_query, {"$set": {"slug": data["company_slug"]}}, upsert=True)
 
+    # Set the type of company
+    collection.update_one(update_query, {"$set": {"industry": data["company_type"]}}, upsert=True)
+
     # Loop over each env commodity to insert data
     for element in env_data_list:
         commodity = element["name"]

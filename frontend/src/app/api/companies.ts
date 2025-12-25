@@ -1,7 +1,7 @@
 
 type Company = {
-    company_name: string;
-    company_slug: string
+    name: string;
+    slug: string
 }
 
 export async function fetchCompanies(): Promise<Company[]> {

@@ -4,36 +4,37 @@ export type SeriesPoint = {
 };
 
 export type CommitmentSeries = {
-    id: string;          // report id
-    label: string;       // "2021 Sustainability Report"
-    series: SeriesPoint[];
+    data: SeriesPoint[];
 };
 
-export type EnvironmentMetric = {
-    key: string;
-    label: string;
+export type EnvironmentalMetricValue = {
+    current: {
+        data: SeriesPoint[];
+    };
+    future: {
+        data: SeriesPoint[][];
+    };
     unit: string;
-
-    actuals: SeriesPoint[];
-    currentCommitment?: SeriesPoint[];
-    supersededCommitments?: CommitmentSeries[];
 };
 
-export type GovernmentSocialMetric = {
-    key: string;
-    label: string;
-    values: StringSeriesPoint[]
-}
+export type EnvironmentalMetrics = {
+    [metricName: string]: EnvironmentalMetricValue;
+};
 
 export type StringSeriesPoint = {
     year: number;
     statement: string;
-}
+};
+
+export type GovernmentSocialMetrics = {
+    [criterion: string]: StringSeriesPoint[];
+};
 
 export type CompanyESG = {
-    companySlug: string;
-    companyName: string;
-    environmental: EnvironmentMetric[];
-    social: GovernmentSocialMetric[];
-    governance: GovernmentSocialMetric[];
+    slug: string;
+    name: string;
+
+    environmental: EnvironmentalMetrics;
+    social: GovernmentSocialMetrics;
+    governance: GovernmentSocialMetrics;
 };

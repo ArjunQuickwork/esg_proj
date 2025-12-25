@@ -6,7 +6,7 @@ import json
 from backends.data_handling.insert_schema_into_mongo import insert_json_into_mongo
 from backends.data_handling.json_schema_gpt import extract_data
 from backends.data_handling.pdf_to_llm_context import pdf_to_context
-from bson.json_util import dumps
+
 
 # Instantiate an instance of the FastAPI client
 web_server = FastAPI()
@@ -20,6 +20,13 @@ print("sys.path:", sys.path)
 async def companies():
     # Fetch company names and slugs and send them over
     result = collection.find({}, {"_id": 0, "name": 1, "slug": 1})
+    json_dump = list(result)
+    return json_dump
+
+@web_server.get("/api/fetchCompany")
+async def fetchCompany(company_slug: str):
+    # Fetch data belonging to a particular company and send
+    result = collection.find({"slug": company_slug}, {"_id": 0})
     json_dump = list(result)
     return json_dump
 

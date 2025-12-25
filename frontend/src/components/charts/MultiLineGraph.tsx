@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
     LineChart,
@@ -9,53 +9,51 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
-import type { EnvironmentMetric } from "../../lib/types";
+import type { SeriesPoint } from "../../lib/types";
 import { MetricTooltip } from "./ClientTooltip";
 
-export function MetricCard({ metric }: { metric: EnvironmentMetric }) {
+type Props = {
+    name: string;
+    unit: string;
+    current: SeriesPoint[];
+    future: SeriesPoint[][];
+};
+
+export function MetricCard({ name, unit, current, future }: Props) {
     return (
         <div className="rounded-xl bg-white p-4 shadow-sm">
             <header className="mb-2">
-                <h3 className="font-medium">{metric.label}</h3>
-                <p className="text-xs text-slate-500">{metric.unit}</p>
+                <h3 className="font-medium">{name}</h3>
+                <p className="text-xs text-slate-500">{unit}</p>
             </header>
 
             <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart>
-                        <XAxis dataKey="year" />
+                        <XAxis dataKey="year" type="number"
+                               domain={["dataMin", "dataMax"]}
+                               tickFormatter={(y) => y.toString()}/>
                         <YAxis />
                         <Tooltip content={<MetricTooltip />} />
 
-                        {/* Actuals */}
+                        {/* Actuals / current values */}
                         <Line
-                            data={metric.actuals}
+                            data={current}
                             dataKey="value"
-                            name="Actuals"
+                            name="Actual"
                             strokeWidth={2}
                             dot={false}
                         />
 
-                        {/* Current commitments */}
-                        {metric.currentCommitment && (
+                        {/* Future commitments (each series is one projection) */}
+                        {future.map((series, index) => (
                             <Line
-                                data={metric.currentCommitment}
+                                key={index}
+                                data={series}
                                 dataKey="value"
-                                name="Current Commitment"
-                                strokeWidth={2}
-                                dot={false}
-                            />
-                        )}
-
-                        {/* Superseded commitments */}
-                        {metric.supersededCommitments?.map((commitment) => (
-                            <Line
-                                key={commitment.id}
-                                data={commitment.series}
-                                dataKey="value"
-                                name={`Superseded – ${commitment.label}`}
-                                strokeDasharray="4 4"
-                                strokeWidth={1.5}
+                                name={`Target ${index + 1}`}
+                                strokeDasharray={index === 0 ? undefined : "4 4"}
+                                strokeWidth={index === 0 ? 2 : 1.5}
                                 dot={false}
                             />
                         ))}
@@ -65,8 +63,8 @@ export function MetricCard({ metric }: { metric: EnvironmentMetric }) {
 
             {/* Inline legend */}
             <div className="mt-2 flex gap-3 text-xs text-slate-500">
-                <span>— Actuals</span>
-                <span className="text-blue-600">— Current Target</span>
+                <span>— Actual</span>
+                <span className="text-blue-600">— Target</span>
                 <span className="opacity-70">⋯ Revised Target</span>
             </div>
         </div>
