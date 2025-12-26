@@ -1,0 +1,22 @@
+{
+  "tech": "Technology",
+  "consumer-discretionary": "Consumer Discretionary",
+  "energy": "Energy",
+  "comms-services": "Communication Services",
+  "auto": "Automotive",
+  "health": "Healthcare",
+  "finance": "Financials",
+  "consumer-staple": "Consumer Staples",
+  "industrials": "Industrials",
+  "materials": "Materials",
+  "utils": "Utilities",
+  "oil-gas": "Oil & Gas",
+  "banking": "Banking",
+  "telecom": "Telecommunications",
+  "it-services": "IT Services",
+  "construction": "Construction",
+  "fmcg": "FMCG",
+  "pharma": "Pharmaceuticals",
+  "cement": "Cement",
+  "steel": "Steel"
+}

@@ -1,0 +1,24 @@
+{
+  "environmental_quantitative": [
+    "Scope 1 Emissions (Absolute)",
+    "Scope 1 Emissions (Intensity)",
+    "Scope 2 Emissions",
+    "Scope 3 Emissions",
+    "Volume of carbon offsets used (in tCO2e)",
+    "Type of Carbon Offsets used",
+    "Percentage of total emissions covered by offsets",
+    "Renewable energy usage (as a percentage of total use)",
+    "Fugitive Emissions (as a percentage of total emissions)",
+    "Methane intensity"
+  ],
+  "environmental_qualitative": [
+    "TCFD-Aligned Disclosures",
+    "1.5 degrees Celsius Scenario Analysis",
+    "Material Risks Identified",
+    "Supplier Climate Expectations",
+    "Climate-related Ratings",
+    "Climate-related Awards",
+    "SDGs Committed To",
+    "Third-party Environmental Accreditation Frameworks used."
+  ]
+}

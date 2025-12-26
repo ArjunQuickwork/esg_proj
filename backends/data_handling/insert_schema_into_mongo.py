@@ -5,7 +5,7 @@ load_dotenv(verbose=True)
 
 
 def insert_json_into_mongo(data):
-    collection = mongo_client.collection
+    collection = mongo_client.data_collection
 
     update_query = {"name": data["company_name"]}
 
