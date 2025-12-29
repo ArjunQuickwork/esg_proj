@@ -16,20 +16,20 @@ import sys, os
 print("CWD:", os.getcwd())
 print("sys.path:", sys.path)
 
-@web_server.get("/api/fetchIndustries")
+@web_server.get("/api/fetchIndustries", summary="Retrieve industries", description="Retrieve all currently-supported industries")
 async def fetchIndustries():
     # Fetch the industries and slugs and send them over
     result = industries_collection.find({}, {"_id": 0})
     json_dump = list(result)
     return json_dump
 
-@web_server.get("/api/fetchCompaniesByIndustry")
+@web_server.get("/api/fetchCompaniesByIndustry", summary="Retrieve companies in industry", description="Retrieve all companies operating in a given industry")
 async def fetchCompaniesByIndustry(industry: str):
     result = data_collection.find({"industry": industry}, {"_id": 0, "industry": 1})
     json_dump = list(result)
     return json_dump
 
-@web_server.get("/api/fetchQuestions")
+@web_server.get("/api/fetchQuestions", summary="Fetch questions", description="Fetch all questions for companies operating in a given industry")
 async def fetchQuestions(industry: str):
     result_all = questions_collection.find({"industry": "main"}, {"_id": 0})
     result_industry_specific = questions_collection.find({"industry": industry}, {"_id": 0})
@@ -38,14 +38,14 @@ async def fetchQuestions(industry: str):
     return json_dump_main + json_dump_industry_specific
 
 
-@web_server.get("/api/companies")
+@web_server.get("/api/companies", summary="Fetch companies", description="Fetch all companies and their slugs (UID)")
 async def companies():
     # Fetch company names and slugs and send them over
     result = data_collection.find({}, {"_id": 0, "name": 1, "slug": 1})
     json_dump = list(result)
     return json_dump
 
-@web_server.get("/api/fetchCompany")
+@web_server.get("/api/fetchCompany", summary="Fetch data for a company", description="Fetch data for a company")
 async def fetchCompany(company_slug: str):
     # Fetch data belonging to a particular company and send
     result = data_collection.find({"slug": company_slug}, {"_id": 0})
@@ -53,7 +53,7 @@ async def fetchCompany(company_slug: str):
     return json_dump
 
 
-@web_server.post("/api/companies/addData")
+@web_server.post("/api/companies/addData", summary="Upload new report", description="Upload new report and autofill details into database")
 async def add_data(file: UploadFile = File(...)):
     file_path = UPLOAD_DIR / file.filename
 
