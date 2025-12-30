@@ -41,9 +41,9 @@ async def fetchQuestions(industry: str):
 @web_server.put("/api/addQuestionSpecific", summary="Add new question to env list of industry", description="Given a particular industry, add a new question to the list of industry-specific questions that will be asked")
 async def addQuestionSpecific(industry: str, question: str, qualitative: bool):
     if (qualitative):
-        questions_collection.update_one({"industry": industry}, {"$push": {"environmental_qualitative": question}}, upsert=True)
+        questions_collection.update_one({"industry": industry}, {"$push": {"qualitative": question}}, upsert=True)
     else:
-        questions_collection.update_one({"industry": industry}, {"$push": {"environmental_quantitative": question}}, upsert=True)
+        questions_collection.update_one({"industry": industry}, {"$push": {"quantitative": question}}, upsert=True)
 
 
 @web_server.put("/api/addCategory", summary="Add new industry category", description="Add a new industry category to the list of industries")
@@ -56,9 +56,9 @@ async def addQuestionGeneral(type: str, question: str, qualitative: bool = False
         questions_collection.update_one({"industry": "general"}, {"$push": {type: question}}, upsert=True)
     else:
         if (qualitative):
-            questions_collection.update_one({"industry": "general"}, {"$push": {"environmental_qualitative": question}}, upsert=True)
+            questions_collection.update_one({"industry": "general"}, {"$push": {"environmental.qualitative": question}}, upsert=True)
         else:
-            questions_collection.update_one({"industry": "general"}, {"$push": {"environmental_quantitative": question}}, upsert=True)
+            questions_collection.update_one({"industry": "general"}, {"$push": {"environmental.quantitative": question}}, upsert=True)
 
 
 @web_server.delete("/api/removeCategory", summary="Remove a category from the list", description="Remove a category from the list")
@@ -71,16 +71,16 @@ async def removeQuestionGeneral(type: str, question: str, qualitative: bool = Fa
         questions_collection.delete_one({"industry": "general"}, {"$pull": {type: question}}, upsert=True)
     else:
         if (qualitative):
-            questions_collection.delete_one({"industry": "general"}, {"$pull": {"environmental_qualitative": question}}, upsert=True)
+            questions_collection.delete_one({"industry": "general"}, {"$pull": {"environmental.qualitative": question}}, upsert=True)
         else:
-            questions_collection.delete_one({"industry": "general"}, {"$pull": {"environmental_quantitative": question}}, upsert=True)
+            questions_collection.delete_one({"industry": "general"}, {"$pull": {"environmental.quantitative": question}}, upsert=True)
 
 @web_server.delete("/api/removeQuestionSpecific", summary="Remove specific question", description="Remove industry-specific question from the list")
 async def removeQuestionSpecific(industry: str, question: str, qualitative: bool):
     if (qualitative):
-        questions_collection.delete_one({"industry": industry}, {"$pull": {"environmental_qualitative": question}}, upsert=True)
+        questions_collection.delete_one({"industry": industry}, {"$pull": {"qualitative": question}}, upsert=True)
     else:
-        questions_collection.delete_one({"industry": industry}, {"$pull": {"environmental_quantitative": question}}, upsert=True)
+        questions_collection.delete_one({"industry": industry}, {"$pull": {"quantitative": question}}, upsert=True)
 
 @web_server.get("/api/companies", summary="Fetch companies", description="Fetch all companies and their slugs (UID)")
 async def companies():
