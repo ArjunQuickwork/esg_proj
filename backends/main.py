@@ -38,6 +38,50 @@ async def fetchQuestions(industry: str):
     return json_dump_main + json_dump_industry_specific
 
 
+@web_server.put("/api/addQuestionSpecific", summary="Add new question to env list of industry", description="Given a particular industry, add a new question to the list of industry-specific questions that will be asked")
+async def addQuestionSpecific(industry: str, question: str, qualitative: bool):
+    if (qualitative):
+        questions_collection.update_one({"industry": industry}, {"$push": {"environmental_qualitative": question}}, upsert=True)
+    else:
+        questions_collection.update_one({"industry": industry}, {"$push": {"environmental_quantitative": question}}, upsert=True)
+
+
+@web_server.put("/api/addCategory", summary="Add new industry category", description="Add a new industry category to the list of industries")
+async def addCategory(industry: str):
+    industries_collection.update_one({}, {"$push": {"industries": industry}}, upsert=True)
+
+@web_server.put("/api/addQuestionGeneral", summary="Add new generic question", description="Add a new generic question to the list of questions that every company is subjected to")
+async def addQuestionGeneral(type: str, question: str, qualitative: bool = False):
+    if (type == "social" or type == "governance"):
+        questions_collection.update_one({"industry": "general"}, {"$push": {type: question}}, upsert=True)
+    else:
+        if (qualitative):
+            questions_collection.update_one({"industry": "general"}, {"$push": {"environmental_qualitative": question}}, upsert=True)
+        else:
+            questions_collection.update_one({"industry": "general"}, {"$push": {"environmental_quantitative": question}}, upsert=True)
+
+
+@web_server.delete("/api/removeCategory", summary="Remove a category from the list", description="Remove a category from the list")
+async def removeCategory(industry: str):
+    industries_collection.delete_one({}, {"$pull": {"industries": industry}}, upsert=True)
+
+@web_server.delete("/api/removeQuestionGeneral", summary="Remove general question", description="Remove general question from the list")
+async def removeQuestionGeneral(type: str, question: str, qualitative: bool = False):
+    if (type == "social" or type == "governance"):
+        questions_collection.delete_one({"industry": "general"}, {"$pull": {type: question}}, upsert=True)
+    else:
+        if (qualitative):
+            questions_collection.delete_one({"industry": "general"}, {"$pull": {"environmental_qualitative": question}}, upsert=True)
+        else:
+            questions_collection.delete_one({"industry": "general"}, {"$pull": {"environmental_quantitative": question}}, upsert=True)
+
+@web_server.delete("/api/removeQuestionSpecific", summary="Remove specific question", description="Remove industry-specific question from the list")
+async def removeQuestionSpecific(industry: str, question: str, qualitative: bool):
+    if (qualitative):
+        questions_collection.delete_one({"industry": industry}, {"$pull": {"environmental_qualitative": question}}, upsert=True)
+    else:
+        questions_collection.delete_one({"industry": industry}, {"$pull": {"environmental_quantitative": question}}, upsert=True)
+
 @web_server.get("/api/companies", summary="Fetch companies", description="Fetch all companies and their slugs (UID)")
 async def companies():
     # Fetch company names and slugs and send them over
