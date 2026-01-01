@@ -1,4 +1,3 @@
-# Takes JSON and throws it into mongodb
 from dotenv import load_dotenv
 import backends.constants.mongo_client as mongo_client
 load_dotenv(verbose=True)
@@ -8,47 +7,186 @@ def insert_json_into_mongo(data):
     collection = mongo_client.data_collection
 
     update_query = {"name": data["company_name"]}
+    year = data["company_year"]
 
-    # Create data list
-    env_data_list = data["environmental_quantities"]
+    # ------------------------------------------------------------------
+    # Basic company metadata
+    # ------------------------------------------------------------------
+    collection.update_one(
+        update_query,
+        {
+            "$set": {
+                "slug": data["company_slug"],
+                "industry": data["company_type"],
+                "country": data["company_country"]
+            }
+        },
+        upsert=True
+    )
 
-    # Set the slug
-    collection.update_one(update_query, {"$set": {"slug": data["company_slug"]}}, upsert=True)
+    # ------------------------------------------------------------------
+    # ENVIRONMENTAL — QUANTITATIVE
+    # ------------------------------------------------------------------
+    for element in data.get("environmental_quantities", {}).get("quantitative", []):
+        criterion = element["criterion"]
+        unit = element["unit"]
+        current = element["current"]           # {year, value}
+        future = element.get("future", [])     # list of {year, value}
 
-    # Set the type of company
-    collection.update_one(update_query, {"$set": {"industry": data["company_type"]}}, upsert=True)
+        # 1️⃣ Ensure criterion object exists
+        collection.update_one(
+            {
+                **update_query,
+                "environmental.quantitative.criterion": {"$ne": criterion}
+            },
+            {
+                "$push": {
+                    "environmental.quantitative": {
+                        "criterion": criterion,
+                        "unit": unit,
+                        "current": [],
+                        "future": []
+                    }
+                }
+            },
+            upsert=True
+        )
 
-    # Loop over each env commodity to insert data
-    for element in env_data_list:
-        commodity = element["name"]
-        curr_value = element["value"]
+        # 2️⃣ Push CURRENT year data
+        collection.update_one(
+            update_query,
+            {
+                "$push": {
+                    "environmental.quantitative.$[elem].current": current
+                }
+            },
+            array_filters=[{"elem.criterion": criterion}]
+        )
 
-        # Add the current quantity
-        collection.update_one(update_query, {
-            "$push": {f"environmental.{commodity}.current.data": {"year": data['company_year'], "value": curr_value}}},upsert=True)
+        # 3️⃣ Push FUTURE data (list-safe)
+        if future:
+            collection.update_one(
+                update_query,
+                {
+                    "$push": {
+                        "environmental.quantitative.$[elem].future": {
+                            "$each": future
+                        }
+                    }
+                },
+                array_filters=[{"elem.criterion": criterion}]
+            )
 
-        # Add the future predictions
-        collection.update_one(update_query, {"$push": {f"environmental.{commodity}.future.data": element['future']}}, upsert=True)
+    # ------------------------------------------------------------------
+    # ENVIRONMENTAL — QUALITATIVE
+    # ------------------------------------------------------------------
+    for element in data.get("environmental_quantities", {}).get("qualitative", []):
+        criterion = element["criterion"]
+        comment = element.get("comment", "")
 
-        # Add the unit
-        collection.update_one(update_query, {"$set": {f"environmental.{commodity}.unit": element["unit"]}},upsert=True)
+        # 1️⃣ Ensure criterion exists
+        collection.update_one(
+            {
+                **update_query,
+                "environmental.qualitative.criterion": {"$ne": criterion}
+            },
+            {
+                "$push": {
+                    "environmental.qualitative": {
+                        "criterion": criterion,
+                        "history": []
+                    }
+                }
+            },
+            upsert=True
+        )
 
-    social_data_list = data['social_elements']
+        # 2️⃣ Push yearly comment
+        collection.update_one(
+            update_query,
+            {
+                "$push": {
+                    "environmental.qualitative.$[elem].history": {
+                        "year": year,
+                        "comment": comment
+                    }
+                }
+            },
+            array_filters=[{"elem.criterion": criterion}]
+        )
 
-    for element in social_data_list:
-        commodity = element["criterion"]
-        statement = element["comment"]
+    # ------------------------------------------------------------------
+    # SOCIAL
+    # ------------------------------------------------------------------
+    for element in data.get("social_elements", []):
+        criterion = element["criterion"]
+        rating = element["rating"]
 
-        # Add it in
-        collection.update_one(update_query,
-                              {"$push": {f"social.{commodity}": {"year": data['company_year'], "statement": statement}}}, upsert=True)
+        # 1️⃣ Ensure criterion exists
+        collection.update_one(
+            {
+                **update_query,
+                "social.criterion": {"$ne": criterion}
+            },
+            {
+                "$push": {
+                    "social": {
+                        "criterion": criterion,
+                        "history": []
+                    }
+                }
+            },
+            upsert=True
+        )
 
-    governance_data_list = data['governance_elements']
+        # 2️⃣ Push yearly rating
+        collection.update_one(
+            update_query,
+            {
+                "$push": {
+                    "social.$[elem].history": {
+                        "year": year,
+                        "rating": rating
+                    }
+                }
+            },
+            array_filters=[{"elem.criterion": criterion}]
+        )
 
-    for element in governance_data_list:
-        commodity = element["criterion"]
-        statement = element["comment"]
+    # ------------------------------------------------------------------
+    # GOVERNANCE
+    # ------------------------------------------------------------------
+    for element in data.get("governance_elements", []):
+        criterion = element["criterion"]
+        rating = element["rating"]
 
-        # Add it in
-        collection.update_one(update_query, {
-            "$push": {f"governance.{commodity}": {"year": data['company_year'], "statement": statement}}}, upsert=True)
+        # 1️⃣ Ensure criterion exists
+        collection.update_one(
+            {
+                **update_query,
+                "governance.criterion": {"$ne": criterion}
+            },
+            {
+                "$push": {
+                    "governance": {
+                        "criterion": criterion,
+                        "history": []
+                    }
+                }
+            },
+            upsert=True
+        )
+
+        # 2️⃣ Push yearly rating
+        collection.update_one(
+            update_query,
+            {
+                "$push": {
+                    "governance.$[elem].history": {
+                        "year": year,
+                        "rating": rating
+                    }
+                }
+            },
+            array_filters=[{"elem.criterion": criterion}]
+        )

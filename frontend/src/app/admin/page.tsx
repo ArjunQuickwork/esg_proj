@@ -1,48 +1,115 @@
 "use client"
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ShieldCheck, LogIn } from 'lucide-react';
-import { motion } from 'framer-motion';
-import {auth0} from "@/lib/auth0";
+import { useUser } from "@auth0/nextjs-auth0/client"
+import { UploadCloud, FileText, LogIn } from "lucide-react"
 
-export default async function LoginPage() {
-    // const session = await auth0.getSession();
-    // const user = session?.user;
+export default function UploadPage() {
+    const { user, isLoading } = useUser()
 
+    if (isLoading) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <p className="text-sm text-muted-foreground">Loading…</p>
+            </div>
+        )
+    }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted">
-            <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: 'easeOut' }}
-            >
-                <Card className="w-[360px] rounded-2xl shadow-lg">
-                    <CardContent className="space-y-6 p-8 text-center">
-                        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                            <ShieldCheck className="h-6 w-6 text-primary" />
+        <main className="flex min-h-screen items-center justify-center bg-background px-4">
+            <div className="w-full max-w-md rounded-2xl border bg-card p-8 shadow-sm">
+                {/* Header */}
+                <div className="mb-6 space-y-1 text-center">
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                        Upload ESG Report
+                    </h1>
+                    <p className="text-sm text-muted-foreground">
+                        PDF documents only
+                    </p>
+                </div>
+
+                {/* Auth state */}
+                {!user ? (
+                    <a
+                        href="/auth/login"
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+                    >
+                        <LogIn className="h-4 w-4" />
+                        Sign in with Auth0
+                    </a>
+                ) : (
+                    <>
+                        {/* User info */}
+                        <div className="mb-4 flex items-center gap-3 rounded-xl border p-3">
+                            <img
+                                src={user.picture ?? ""}
+                                alt={user.name ?? "User"}
+                                className="h-8 w-8 rounded-full"
+                            />
+                            <div className="text-sm">
+                                <p className="font-medium">{user.name}</p>
+                                <p className="text-muted-foreground">
+                                    {user.email}
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <h1 className="text-xl font-semibold">Admin Login</h1>
-                            <p className="text-sm text-muted-foreground">
-                                Sign in securely using Auth0
+                        {/* Upload box */}
+                        <label
+                            htmlFor="pdf"
+                            className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-6 text-center transition hover:bg-muted"
+                        >
+                            <UploadCloud className="h-6 w-6 text-muted-foreground group-hover:text-foreground" />
+                            <p className="text-sm font-medium">
+                                Drag & drop your PDF
                             </p>
-                        </div>
+                            <p className="text-xs text-muted-foreground">
+                                or click to browse
+                            </p>
 
-                        <Button size="lg" className="w-full" asChild>
-                            <a href="/api/auth/login">
-                                <LogIn className="mr-2 h-4 w-4" /> Continue with Auth0
-                            </a>
-                        </Button>
+                            <input
+                                id="pdf"
+                                type="file"
+                                accept="application/pdf"
+                                className="hidden"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0]
+                                    if (!file) return
 
-                        <p className="text-xs text-muted-foreground">
-                            Protected by enterprise‑grade authentication
+                                    const formData = new FormData()
+                                    formData.append("file", file)
+
+                                    const res = await fetch("http://localhost:80/api/companies/addData", {
+                                        method: "POST",
+                                        body: formData,
+                                    })
+
+                                    if (!res.ok) {
+                                        console.error("Upload failed")
+                                        return
+                                    }
+
+                                    const data = await res.json()
+                                    console.log("Upload success:", data)
+                                }}
+                            />
+                        </label>
+
+                        {/* Helper */}
+                        <p className="mt-3 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                            <FileText className="h-3 w-3" />
+                            Max size 100MB
                         </p>
-                    </CardContent>
-                </Card>
-            </motion.div>
-        </div>
-    );
+
+                        {/* Logout */}
+                        <a
+                            href="/auth/logout"
+                            className="mt-6 block text-center text-xs text-muted-foreground hover:underline"
+                        >
+                            Sign out
+                        </a>
+                    </>
+                )}
+            </div>
+        </main>
+    )
 }

@@ -1,6 +1,8 @@
 import shutil
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File
+from starlette.middleware.cors import CORSMiddleware
+
 from backends.constants.mongo_client import data_collection, industries_collection, questions_collection
 import json
 from backends.data_handling.insert_schema_into_mongo import insert_json_into_mongo
@@ -15,6 +17,14 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 import sys, os
 print("CWD:", os.getcwd())
 print("sys.path:", sys.path)
+
+web_server.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @web_server.get("/api/fetchIndustries", summary="Retrieve industries", description="Retrieve all currently-supported industries")
 async def fetchIndustries():
@@ -85,8 +95,9 @@ async def removeQuestionSpecific(industry: str, question: str, qualitative: bool
 @web_server.get("/api/companies", summary="Fetch companies", description="Fetch all companies and their slugs (UID)")
 async def companies():
     # Fetch company names and slugs and send them over
-    result = data_collection.find({}, {"_id": 0, "name": 1, "slug": 1})
+    result = data_collection.find({}, {"_id": 0, "name": 1, "slug": 1, "industry": 1, "country": 1})
     json_dump = list(result)
+    print(json_dump)
     return json_dump
 
 @web_server.get("/api/fetchCompany", summary="Fetch data for a company", description="Fetch data for a company")
@@ -109,7 +120,7 @@ async def add_data(file: UploadFile = File(...)):
         pdf_to_context(file_path, "./out", 12000)
         data = extract_data("./out/llm_context.txt")
         dict_json = json.loads(data.json())
-        print(type(dict_json))
+        print(dict_json)
         insert_json_into_mongo(dict_json)
     except Exception as e:
         print(e)
