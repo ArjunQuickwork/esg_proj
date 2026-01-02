@@ -1,6 +1,6 @@
 "use client"
 
-import {getAccessToken, useUser} from "@auth0/nextjs-auth0/client"
+import {useUser} from "@auth0/nextjs-auth0/client"
 import { UploadCloud, FileText, LogIn } from "lucide-react"
 
 export default function UploadPage() {
@@ -72,7 +72,16 @@ export default function UploadPage() {
                                 accept="application/pdf"
                                 className="hidden"
                                 onChange={async (e) => {
-                                    const accessToken = await getAccessToken()
+                                    const json = await fetch('/api/auth')
+
+                                    if (!json.ok) {
+                                        const text = await json.text();
+                                        throw new Error(text);
+                                    }
+
+                                    const {accessToken} = await json.json()
+
+                                    console.log(accessToken.token)
 
                                     const file = e.target.files?.[0]
                                     if (!file) return
@@ -84,7 +93,7 @@ export default function UploadPage() {
                                         method: "POST",
                                         body: formData,
                                         headers: {
-                                            Authorization: `Bearer ${accessToken}`,
+                                            Authorization: `Bearer ${accessToken.token}`,
                                         }
                                     })
 
