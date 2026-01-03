@@ -1,0 +1,22 @@
+meta {
+  name: Remove A General Question
+  type: http
+  seq: 11
+}
+
+delete {
+  url: http://localhost:80/api/removeQuestionGeneral?type=environmental&question=What are you doing&qualitative=True
+  body: none
+  auth: bearer
+}
+
+params:query {
+  type: environmental
+  question: What are you doing
+  qualitative: True
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

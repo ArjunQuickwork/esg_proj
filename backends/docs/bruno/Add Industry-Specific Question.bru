@@ -1,0 +1,22 @@
+meta {
+  name: Add Industry-Specific Question
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:80/api/addQuestionSpecific?industry=technology&question=What are you doing&qualitative=True
+  body: none
+  auth: bearer
+}
+
+params:query {
+  industry: technology
+  question: What are you doing
+  qualitative: True
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

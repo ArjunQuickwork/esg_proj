@@ -1,0 +1,20 @@
+meta {
+  name: Fetch Environmental Questions by Industry
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:80/api/fetchQuestions?industry=technology
+  body: none
+  auth: inherit
+}
+
+params:query {
+  industry: technology
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -1,0 +1,16 @@
+meta {
+  name: FetchNamesAndSlugs
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:80/api/companies
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

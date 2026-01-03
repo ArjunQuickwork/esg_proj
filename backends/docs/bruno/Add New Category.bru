@@ -1,0 +1,20 @@
+meta {
+  name: Add New Category
+  type: http
+  seq: 8
+}
+
+put {
+  url: http://localhost:80/api/addCategory?industry=recreational
+  body: none
+  auth: bearer
+}
+
+params:query {
+  industry: recreational
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

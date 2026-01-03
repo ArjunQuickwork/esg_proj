@@ -1,0 +1,20 @@
+meta {
+  name: Fetch Company by Industry
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:80/api/fetchCompaniesByIndustry?industry=technology
+  body: none
+  auth: inherit
+}
+
+params:query {
+  industry: technology
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

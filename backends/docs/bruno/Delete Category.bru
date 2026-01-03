@@ -1,0 +1,20 @@
+meta {
+  name: Delete Category
+  type: http
+  seq: 10
+}
+
+delete {
+  url: http://localhost:80/api/removeCategory?industry=technology
+  body: none
+  auth: bearer
+}
+
+params:query {
+  industry: technology
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

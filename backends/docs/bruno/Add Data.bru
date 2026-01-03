@@ -1,0 +1,30 @@
+meta {
+  name: Add Data
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:80/api/companies/addData?industry=technology&question=Scope 2 Emissions&qualitative=True
+  body: multipartForm
+  auth: bearer
+}
+
+params:query {
+  industry: technology
+  question: Scope 2 Emissions
+  qualitative: True
+}
+
+body:multipart-form {
+  : @file(C:\Users\ArjunSanghi\Desktop\intern_work\esg_proj\backends\data\abbott\Abbott-2024-Global-Sustainability-Report-June-2025.pdf)
+}
+
+body:file {
+  file: @file(C:\Users\ArjunSanghi\Desktop\intern_work\esg_proj\backends\data\abbott\Global-Sustainability-Report-2019.pdf) @contentType(application/pdf)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
