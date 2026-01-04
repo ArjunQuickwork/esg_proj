@@ -25,6 +25,16 @@ services:
     restart: always
     networks: [internal]
 
+  migrations:
+    build:
+      context: ./backend
+      dockerfile: migrations.Dockerfile
+    env_file:
+      - .env.production
+    depends_on:
+      - mongodb
+    restart: "no"
+
 volumes:
   mongo_data:
 

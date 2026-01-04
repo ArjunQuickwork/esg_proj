@@ -1,4 +1,4 @@
-# backend/migrations.Dockerfile
+# backend/migrations.migrations.Dockerfile
 FROM python:3.11-slim
 
 WORKDIR /app
