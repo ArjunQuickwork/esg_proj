@@ -1,5 +1,3 @@
-import {motion} from "framer-motion";
-import {Badge} from "@/components/ui/badge";
 import {ArrowRight, GitFork, Globe2, Sparkles} from "lucide-react";
 import React from "react";
 import Link from "next/link";
@@ -24,10 +22,12 @@ export default function TopBar() {
                         >Explore dashboards</Button
                         >
                     </Link>
-                    <Button variant="outline" className="rounded-xl"
-                    >
-                        <GitFork className="mr-2 h-4 w-4" /> GitHub
-                    </Button>
+                    <Link href={process.env.NEXT_PUBLIC_GITHUB_REPOSITORY_URL}>
+                        <Button variant="outline" className="rounded-xl"
+                        >
+                            <GitFork className="mr-2 h-4 w-4" /> GitHub
+                        </Button>
+                    </Link>
                     <Button className="rounded-xl"
                     >
                         Get involved <ArrowRight className="ml-2 h-4 w-4" />
