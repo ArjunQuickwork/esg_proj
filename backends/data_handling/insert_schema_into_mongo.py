@@ -3,10 +3,15 @@ import backends.constants.mongo_client as mongo_client
 load_dotenv(verbose=True)
 
 
-def insert_json_into_mongo(data):
+def insert_json_into_mongo(data, company_name):
     collection = mongo_client.data_collection
 
-    update_query = {"name": data["company_name"]}
+    if company_name != "--- New Company ---":
+        actual_company_name = company_name
+    else:
+        actual_company_name = data["company_name"]
+
+    update_query = {"name": actual_company_name}
     year = data["company_year"]
 
     # ------------------------------------------------------------------
@@ -33,7 +38,7 @@ def insert_json_into_mongo(data):
         current = element["current"]           # {year, value}
         future = element.get("future", [])     # list of {year, value}
 
-        # 1️⃣ Ensure criterion object exists
+        # Ensure criterion object exists
         collection.update_one(
             {
                 **update_query,
@@ -52,7 +57,7 @@ def insert_json_into_mongo(data):
             upsert=True
         )
 
-        # 2️⃣ Push CURRENT year data
+        # Push CURRENT year data
         collection.update_one(
             update_query,
             {
@@ -63,7 +68,7 @@ def insert_json_into_mongo(data):
             array_filters=[{"elem.criterion": criterion}]
         )
 
-        # 3️⃣ Push FUTURE data (list-safe)
+        # Push FUTURE data (list-safe)
         if future:
             collection.update_one(
                 update_query,
@@ -84,7 +89,7 @@ def insert_json_into_mongo(data):
         criterion = element["criterion"]
         comment = element.get("comment", "")
 
-        # 1️⃣ Ensure criterion exists
+        # Ensure criterion exists
         collection.update_one(
             {
                 **update_query,
@@ -101,7 +106,7 @@ def insert_json_into_mongo(data):
             upsert=True
         )
 
-        # 2️⃣ Push yearly comment
+        # Push yearly comment
         collection.update_one(
             update_query,
             {
@@ -122,7 +127,7 @@ def insert_json_into_mongo(data):
         criterion = element["criterion"]
         rating = element["rating"]
 
-        # 1️⃣ Ensure criterion exists
+        # Ensure criterion exists
         collection.update_one(
             {
                 **update_query,
@@ -139,7 +144,7 @@ def insert_json_into_mongo(data):
             upsert=True
         )
 
-        # 2️⃣ Push yearly rating
+        # Push yearly rating
         collection.update_one(
             update_query,
             {
@@ -160,7 +165,7 @@ def insert_json_into_mongo(data):
         criterion = element["criterion"]
         rating = element["rating"]
 
-        # 1️⃣ Ensure criterion exists
+        # Ensure criterion exists
         collection.update_one(
             {
                 **update_query,
@@ -177,7 +182,7 @@ def insert_json_into_mongo(data):
             upsert=True
         )
 
-        # 2️⃣ Push yearly rating
+        # Push yearly rating
         collection.update_one(
             update_query,
             {

@@ -353,7 +353,9 @@ async def fetchCompany(company_slug: str):
 
 
 @web_server.post("/api/companies/addData", summary="Upload new report", description="Upload new report and autofill details into database")
-async def add_data(file: UploadFile = File(...), claims: dict = Depends(auth0.require_auth)):
+async def add_data(company_name: str, file: UploadFile = File(...), claims: dict = Depends(auth0.require_auth)):
+    logger.warning("add_data CALLED")
+
     file_path = UPLOAD_DIR / file.filename
 
     with file_path.open("wb") as buffer:
@@ -364,8 +366,7 @@ async def add_data(file: UploadFile = File(...), claims: dict = Depends(auth0.re
         pdf_to_context(file_path, "./out", 12000)
         data = extract_data("./out/llm_context.txt")
         dict_json = json.loads(data.json())
-        print(dict_json)
-        insert_json_into_mongo(dict_json)
+        insert_json_into_mongo(dict_json, company_name)
 
     except PyMongoError as e:
         logger.exception("MongoDB error in add_data: " + str(e))
